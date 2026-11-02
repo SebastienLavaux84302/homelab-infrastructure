@@ -1,0 +1,8 @@
+---
+all:
+  children:
+    lab_linux:
+      hosts:
+        linux-test:
+          ansible_host: linux-test.example.invalid
+          ansible_user: lab

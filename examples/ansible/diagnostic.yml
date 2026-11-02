@@ -1,0 +1,20 @@
+---
+- name: Vérifier une machine Linux de laboratoire
+  hosts: lab_linux
+  gather_facts: false
+  become: false
+
+  tasks:
+    - name: Vérifier la connexion Ansible
+      ansible.builtin.ping:
+
+    - name: Collecter les faits système minimaux
+      ansible.builtin.setup:
+        gather_subset:
+          - min
+
+    - name: Afficher un résumé de la cible
+      ansible.builtin.debug:
+        msg: >-
+          {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }}
+          — gestionnaire de services : {{ ansible_facts.service_mgr }}

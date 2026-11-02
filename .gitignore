@@ -1,0 +1,4 @@
+examples/ansible/inventory.local.yml
+examples/ansible/inventory.local.yaml
+*.retry
+.venv/

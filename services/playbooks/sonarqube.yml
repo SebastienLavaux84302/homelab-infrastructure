@@ -1,0 +1,7 @@
+---
+- name: Déployer SonarQube dans le lab
+  hosts: sonarqube
+  become: true
+  gather_facts: true
+  roles:
+    - lab_sonarqube

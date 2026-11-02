@@ -14,7 +14,7 @@ Ces rôles concernent une **installation de test**. Ils ne configurent pas de pl
 - Un contrôleur avec `ansible-core` 2.16, un accès SSH aux cibles et les privilèges nécessaires ; Python et le support DNF doivent être disponibles sur les cibles.
 - Deux groupes d'inventaire : `jenkins` et `sonarqube`, sur des machines de test de la famille Red Hat 9.
 - Les paquets et leurs dépendances déjà présents dans les dépôts autorisés. En environnement Satellite déconnecté, synchroniser et publier préalablement les contenus nécessaires, dont le RPM Jenkins et sa clé de signature approuvée si le dépôt l'exige.
-- Pour SonarQube : une base PostgreSQL compatible, créée et accessible, avec un compte dédié ; une archive officielle au format ZIP, sa version exacte et son SHA-256 vérifié auprès de la source de confiance ; un JDK compatible avec cette version. Les valeurs fournies ici prévoient Java 21, à adapter selon la version choisie.
+- Pour SonarQube : une base PostgreSQL compatible, créée et accessible, avec un compte dédié ; une archive officielle au format ZIP, sa version exacte et son SHA-256 vérifié auprès de la source de confiance ; un JDK compatible avec cette version. Les valeurs fournies ici prévoient Java 21, à adapter selon la version choisie. Si plusieurs versions de Java sont installées, vérifier le binaire sélectionné par défaut et adapter `lab_sonarqube_java_path`.
 - Sur la cible SonarQube, vérifier notamment `vm.max_map_count` (valeur par défaut contrôlée : au moins 524288) et l'accès à `/tmp`. Le rôle ne modifie pas les paramètres du noyau. L'unité systemd fixe les limites de fichiers et de processus.
 
 Les cibles n'ont pas besoin d'un accès direct à Internet si les sources et dépendances ont été préparées. Le rôle SonarQube copie l'archive depuis le contrôleur ; il ne la télécharge pas.
@@ -41,12 +41,12 @@ L'exemple utilise des noms en `.invalid` et un SHA-256 à remplacer : il ne repr
 ansible-playbook -i inventories/services.local.yml playbooks/lab-services.yml --syntax-check
 
 # Jenkins : mode simulation, puis déploiement après lecture du résultat.
-ansible-playbook -i inventories/services.local.yml playbooks/lab-services.yml --tags jenkins --check
-ansible-playbook -i inventories/services.local.yml playbooks/lab-services.yml --tags jenkins
+ansible-playbook -i inventories/services.local.yml playbooks/jenkins.yml --check
+ansible-playbook -i inventories/services.local.yml playbooks/jenkins.yml
 
 # SonarQube : prérequis, puis déploiement après vérification.
-ansible-playbook -i inventories/services.local.yml playbooks/lab-services.yml --tags sonarqube --check --extra-vars @vars.local.yml --extra-vars @secrets.local.yml --ask-vault-pass
-ansible-playbook -i inventories/services.local.yml playbooks/lab-services.yml --tags sonarqube --extra-vars @vars.local.yml --extra-vars @secrets.local.yml --ask-vault-pass
+ansible-playbook -i inventories/services.local.yml playbooks/sonarqube.yml --check --extra-vars @vars.local.yml --extra-vars @secrets.local.yml --ask-vault-pass
+ansible-playbook -i inventories/services.local.yml playbooks/sonarqube.yml --extra-vars @vars.local.yml --extra-vars @secrets.local.yml --ask-vault-pass
 ```
 
 Pour SonarQube, `--check` contrôle seulement les prérequis, le SHA-256 du fichier sur le contrôleur et `vm.max_map_count` : il ne simule ni l'extraction, ni la configuration, ni le démarrage. Pour Jenkins, DNF estime les changements mais le démarrage systemd n'est pas vérifié en mode simulation. Les métadonnées des dépôts peuvent être consultées pendant la vérification DNF.

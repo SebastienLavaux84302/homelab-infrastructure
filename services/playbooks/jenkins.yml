@@ -1,0 +1,7 @@
+---
+- name: Déployer Jenkins dans le lab
+  hosts: jenkins
+  become: true
+  gather_facts: true
+  roles:
+    - lab_jenkins

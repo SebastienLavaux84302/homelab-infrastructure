@@ -1,0 +1,29 @@
+---
+# À renseigner en fonction de l'archive officielle et de la base déjà préparée.
+lab_sonarqube_version: ""
+lab_sonarqube_archive_path: ""
+lab_sonarqube_archive_sha256: ""
+lab_sonarqube_jdbc_url: ""
+lab_sonarqube_jdbc_username: ""
+lab_sonarqube_jdbc_password: ""
+
+lab_sonarqube_install_dir: /opt/lab-sonarqube
+lab_sonarqube_cache_dir: /var/cache/lab-sonarqube
+lab_sonarqube_user: sonarqube
+lab_sonarqube_group: sonarqube
+lab_sonarqube_java_path: /usr/bin/java
+lab_sonarqube_listen_address: 127.0.0.1
+lab_sonarqube_listen_port: 9000
+lab_sonarqube_min_map_count: 524288
+
+# Vérifier la compatibilité Java avec la version SonarQube choisie.
+lab_sonarqube_packages:
+  - java-21-openjdk-devel
+  - fontconfig
+  - unzip
+lab_sonarqube_enablerepo: []
+lab_sonarqube_disablerepo: []
+
+lab_sonarqube_release_dir: "{{ lab_sonarqube_install_dir }}/sonarqube-{{ lab_sonarqube_version }}"
+lab_sonarqube_application_jar: "{{ lab_sonarqube_release_dir }}/lib/sonar-application-{{ lab_sonarqube_version }}.jar"
+lab_sonarqube_remote_archive: "{{ lab_sonarqube_cache_dir }}/sonarqube-{{ lab_sonarqube_version }}.zip"

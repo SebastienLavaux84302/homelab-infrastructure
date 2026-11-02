@@ -1,0 +1,8 @@
+---
+# Ces paquets doivent déjà être disponibles dans les dépôts de la machine.
+lab_jenkins_packages:
+  - java-21-openjdk
+  - fontconfig
+  - jenkins
+lab_jenkins_enablerepo: []
+lab_jenkins_disablerepo: []

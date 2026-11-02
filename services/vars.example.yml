@@ -1,0 +1,14 @@
+---
+# Copier dans vars.local.yml et adapter. Ce fichier ne contient aucun secret.
+lab_jenkins_enablerepo: []
+lab_jenkins_disablerepo: []
+
+# La version doit correspondre au répertoire et au JAR contenus dans le ZIP.
+lab_sonarqube_version: "2026.1.0.119033"
+lab_sonarqube_archive_path: /chemin/absolu/vers/sonarqube-2026.1.0.119033.zip
+lab_sonarqube_archive_sha256: REMPLACER_PAR_LE_SHA256_DE_L_ARCHIVE
+lab_sonarqube_jdbc_url: jdbc:postgresql://postgres.example.invalid:5432/sonarqube
+lab_sonarqube_jdbc_username: sonar_lab
+lab_sonarqube_jdbc_password: "{{ vault_sonarqube_db_password }}"
+lab_sonarqube_enablerepo: []
+lab_sonarqube_disablerepo: []

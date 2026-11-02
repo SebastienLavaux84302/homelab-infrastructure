@@ -1,0 +1,13 @@
+---
+all:
+  children:
+    jenkins:
+      hosts:
+        jenkins-test:
+          ansible_host: jenkins.example.invalid
+          ansible_user: lab
+    sonarqube:
+      hosts:
+        sonarqube-test:
+          ansible_host: sonarqube.example.invalid
+          ansible_user: lab

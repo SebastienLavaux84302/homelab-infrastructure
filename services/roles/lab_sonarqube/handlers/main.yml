@@ -1,0 +1,7 @@
+---
+- name: Redémarrer le service SonarQube
+  ansible.builtin.systemd:
+    name: lab-sonarqube
+    daemon_reload: true
+    state: restarted
+  when: not ansible_check_mode

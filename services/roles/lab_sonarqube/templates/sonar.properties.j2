@@ -1,0 +1,6 @@
+# Géré par Ansible. Le mot de passe doit être fourni hors du dépôt.
+sonar.jdbc.url={{ lab_sonarqube_jdbc_url | lab_java_property }}
+sonar.jdbc.username={{ lab_sonarqube_jdbc_username | lab_java_property }}
+sonar.jdbc.password={{ lab_sonarqube_jdbc_password | lab_java_property }}
+sonar.web.host={{ lab_sonarqube_listen_address | lab_java_property }}
+sonar.web.port={{ lab_sonarqube_listen_port | int }}

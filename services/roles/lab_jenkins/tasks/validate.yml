@@ -1,0 +1,15 @@
+---
+- name: Vérifier que la cible est de la famille Red Hat 9
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.os_family | default('') == 'RedHat'
+      - ansible_facts.distribution_major_version | default('') == '9'
+      - lab_jenkins_packages is sequence
+      - lab_jenkins_packages is not string
+      - lab_jenkins_packages | length > 0
+      - lab_jenkins_enablerepo is sequence
+      - lab_jenkins_enablerepo is not string
+      - lab_jenkins_disablerepo is sequence
+      - lab_jenkins_disablerepo is not string
+    fail_msg: "Ce rôle nécessite une cible de la famille Red Hat 9 et des listes de paquets et dépôts valides."
+    quiet: true

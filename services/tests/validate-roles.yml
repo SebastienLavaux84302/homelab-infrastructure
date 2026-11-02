@@ -1,0 +1,88 @@
+---
+- name: Contrôler les prérequis des rôles sans déployer de services
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    ansible_facts:
+      os_family: RedHat
+      distribution_major_version: "9"
+    lab_sonarqube_version: "2026.1.0.119033"
+    lab_sonarqube_jdbc_url: jdbc:postgresql://postgres.example.invalid:5432/sonarqube
+    lab_sonarqube_jdbc_username: test_lab
+    lab_sonarqube_jdbc_password: "test uniquement : valeur\\avec espaces"
+    lab_sonarqube_listen_address: 127.0.0.1
+    lab_sonarqube_listen_port: 9000
+    # Seuil réduit uniquement pour le test local, sans modifier le système.
+    lab_sonarqube_min_map_count: 1
+
+  tasks:
+    - name: Créer un répertoire temporaire
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: ansible-lab-test-
+      register: lab_test_dir
+
+    - name: Exécuter les contrôles puis nettoyer
+      block:
+        - name: Créer une archive fictive pour vérifier le calcul de hash
+          ansible.builtin.copy:
+            content: archive-de-test-sans-distribution
+            dest: "{{ lab_test_dir.path }}/fixture.zip"
+            mode: "0600"
+
+        - name: Calculer le SHA-256 de la fixture
+          ansible.builtin.stat:
+            path: "{{ lab_test_dir.path }}/fixture.zip"
+            checksum_algorithm: sha256
+          register: lab_fixture_stat
+
+        - name: Préparer les variables de test
+          ansible.builtin.set_fact:
+            lab_sonarqube_archive_path: "{{ lab_test_dir.path }}/fixture.zip"
+            lab_sonarqube_archive_sha256: "{{ lab_fixture_stat.stat.checksum }}"
+
+        - name: Vérifier les paramètres Jenkins
+          ansible.builtin.include_role:
+            name: lab_jenkins
+            tasks_from: validate.yml
+
+        - name: Vérifier les paramètres SonarQube et le SHA-256
+          ansible.builtin.include_role:
+            name: lab_sonarqube
+            tasks_from: validate.yml
+
+        - name: Vérifier le rendu des propriétés sur le contrôleur
+          ansible.builtin.template:
+            src: "{{ playbook_dir }}/../roles/lab_sonarqube/templates/sonar.properties.j2"
+            dest: "{{ lab_test_dir.path }}/sonar.properties"
+            mode: "0600"
+          no_log: true
+          diff: false
+
+        - name: Préparer une empreinte volontairement fausse
+          ansible.builtin.set_fact:
+            lab_sonarqube_archive_sha256: "{{ '0' * 64 }}"
+
+        - name: Rejeter un SHA-256 incorrect
+          block:
+            - name: Utiliser une empreinte volontairement fausse
+              ansible.builtin.include_role:
+                name: lab_sonarqube
+                tasks_from: validate.yml
+          rescue:
+            - name: Noter le rejet de la mauvaise empreinte
+              ansible.builtin.set_fact:
+                lab_bad_hash_rejected: true
+
+        - name: Vérifier le résultat du test négatif
+          ansible.builtin.assert:
+            that:
+              - lab_bad_hash_rejected | default(false)
+            quiet: true
+      always:
+        - name: Supprimer les fichiers temporaires du test
+          ansible.builtin.file:
+            path: "{{ lab_test_dir.path }}"
+            state: absent

@@ -2,7 +2,7 @@
 
 **Un laboratoire personnel pour expérimenter la virtualisation, l'automatisation et l'administration de services.**
 
-J'utilise un environnement de lab sous **Proxmox** pour tester des déploiements avec **Ansible** et explorer les pratiques d'Infrastructure as Code. Ce dépôt présente les thèmes de ces expérimentations et propose un exemple de diagnostic Ansible simple à reproduire.
+J'utilise un environnement de lab sous **Proxmox** pour tester des déploiements avec **Ansible** et explorer les pratiques d'Infrastructure as Code. Ce dépôt présente ces expérimentations et propose des exemples Ansible pour diagnostiquer une machine et déployer des services en laboratoire.
 
 Les services cités ont été expérimentés à différents moments : leur présence dans cette documentation ne signifie pas qu'ils fonctionnent tous simultanément. Les schémas sont des vues logiques pédagogiques, pas le plan détaillé d'un réseau réel.
 
@@ -14,6 +14,7 @@ Les services cités ont été expérimentés à différents moments : leur prés
 | [Services expérimentés](docs/services.md) | Situer les outils explorés et leurs usages. |
 | [Démarche d'automatisation](docs/automatisation.md) | Préparer, tester et documenter un déploiement Ansible. |
 | [Exemple de diagnostic Ansible](examples/ansible/README.md) | Vérifier la connexion et afficher des informations système sur une machine de test. |
+| [Rôles Jenkins et SonarQube](services/README.md) | Exemples expérimentaux de déploiement sur RHEL 9 avec des sources préparées hors ligne. |
 
 ## Vue d'ensemble
 
@@ -48,4 +49,4 @@ La première commande Ansible ne contacte pas la cible. La seconde établit une 
 
 ## Périmètre et assistance
 
-Ce dépôt est une présentation personnelle et pédagogique. Il ne contient pas les playbooks de déploiement des services ni les configurations réelles de mon environnement. L'exemple Ansible et cette documentation ont été préparés avec l'assistance de **Codex (OpenAI)** ; ils sont à adapter et valider avant usage.
+Ce dépôt est une présentation personnelle et pédagogique. Les rôles de déploiement proposés sont de nouveaux exemples expérimentaux, distincts de mes déploiements personnels. Les configurations réelles de mon environnement ne sont pas publiées. Les exemples et cette documentation ont été préparés avec l'assistance de **Codex (OpenAI)** ; ils sont à adapter et valider avant usage.

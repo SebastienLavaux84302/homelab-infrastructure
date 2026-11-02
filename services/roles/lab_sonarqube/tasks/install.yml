@@ -1,0 +1,122 @@
+---
+- name: Installer les dépendances depuis les dépôts disponibles
+  ansible.builtin.dnf:
+    name: "{{ lab_sonarqube_packages }}"
+    state: present
+    enablerepo: "{{ lab_sonarqube_enablerepo if lab_sonarqube_enablerepo | length > 0 else omit }}"
+    disablerepo: "{{ lab_sonarqube_disablerepo if lab_sonarqube_disablerepo | length > 0 else omit }}"
+
+- name: Créer le groupe du service
+  ansible.builtin.group:
+    name: "{{ lab_sonarqube_group }}"
+    system: true
+    state: present
+
+- name: Créer le compte système du service
+  ansible.builtin.user:
+    name: "{{ lab_sonarqube_user }}"
+    group: "{{ lab_sonarqube_group }}"
+    system: true
+    create_home: false
+    home: "{{ lab_sonarqube_install_dir }}"
+    shell: /sbin/nologin
+    state: present
+
+- name: Créer le répertoire d'installation
+  ansible.builtin.file:
+    path: "{{ lab_sonarqube_install_dir }}"
+    state: directory
+    owner: "{{ lab_sonarqube_user }}"
+    group: "{{ lab_sonarqube_group }}"
+    mode: "0755"
+
+- name: Créer le répertoire de cache
+  ansible.builtin.file:
+    path: "{{ lab_sonarqube_cache_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Copier l'archive vérifiée depuis le contrôleur
+  ansible.builtin.copy:
+    src: "{{ lab_sonarqube_archive_path }}"
+    dest: "{{ lab_sonarqube_remote_archive }}"
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: Contrôler le SHA-256 de l'archive sur la cible
+  ansible.builtin.stat:
+    path: "{{ lab_sonarqube_remote_archive }}"
+    checksum_algorithm: sha256
+  register: lab_sonarqube_remote_archive_stat
+  when: not ansible_check_mode
+
+- name: Confirmer l'intégrité du fichier copié
+  ansible.builtin.assert:
+    that:
+      - lab_sonarqube_remote_archive_stat.stat.checksum | default('') | lower == lab_sonarqube_archive_sha256 | lower
+    fail_msg: Le SHA-256 de l'archive copiée sur la cible ne correspond pas.
+    quiet: true
+  when: not ansible_check_mode
+
+- name: Extraire la version demandée
+  ansible.builtin.unarchive:
+    src: "{{ lab_sonarqube_remote_archive }}"
+    dest: "{{ lab_sonarqube_install_dir }}"
+    remote_src: true
+    creates: "{{ lab_sonarqube_application_jar }}"
+    owner: "{{ lab_sonarqube_user }}"
+    group: "{{ lab_sonarqube_group }}"
+  when: not ansible_check_mode
+  notify: Redémarrer le service SonarQube
+
+- name: Vérifier la présence du fichier de démarrage
+  ansible.builtin.stat:
+    path: "{{ lab_sonarqube_application_jar }}"
+  register: lab_sonarqube_jar_stat
+
+- name: Vérifier la structure attendue de l'archive
+  ansible.builtin.assert:
+    that:
+      - lab_sonarqube_jar_stat.stat.isreg | default(false)
+    fail_msg: "Le fichier sonar-application correspondant à la version indiquée est absent de l'archive."
+    quiet: true
+  when: not ansible_check_mode
+
+- name: Configurer SonarQube et ses accès PostgreSQL
+  ansible.builtin.template:
+    src: sonar.properties.j2
+    dest: "{{ lab_sonarqube_release_dir }}/conf/sonar.properties"
+    owner: root
+    group: "{{ lab_sonarqube_group }}"
+    mode: "0640"
+  no_log: true
+  diff: false
+  when: lab_sonarqube_jar_stat.stat.exists | default(false)
+  notify: Redémarrer le service SonarQube
+
+- name: Installer l'unité systemd SonarQube
+  ansible.builtin.template:
+    src: lab-sonarqube.service.j2
+    dest: /etc/systemd/system/lab-sonarqube.service
+    owner: root
+    group: root
+    mode: "0644"
+  when: lab_sonarqube_jar_stat.stat.exists | default(false)
+  notify: Redémarrer le service SonarQube
+
+- name: Appliquer les changements avant de vérifier le service
+  ansible.builtin.meta: flush_handlers
+
+- name: Activer et démarrer SonarQube
+  ansible.builtin.systemd:
+    name: lab-sonarqube
+    daemon_reload: true
+    enabled: true
+    state: started
+  when:
+    - not ansible_check_mode
+    - lab_sonarqube_jar_stat.stat.exists | default(false)
+

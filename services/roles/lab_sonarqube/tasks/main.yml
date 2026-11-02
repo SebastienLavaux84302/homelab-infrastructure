@@ -1,0 +1,12 @@
+---
+- name: Vérifier les prérequis et l'archive SonarQube
+  ansible.builtin.include_tasks: validate.yml
+
+- name: Installer et configurer SonarQube
+  ansible.builtin.include_tasks: install.yml
+  when: not ansible_check_mode
+
+- name: Préciser la limite du mode simulation
+  ansible.builtin.debug:
+    msg: En mode --check, seuls les prérequis sont contrôlés ; aucune installation n'est simulée.
+  when: ansible_check_mode

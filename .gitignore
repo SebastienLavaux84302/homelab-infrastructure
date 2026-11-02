@@ -2,3 +2,9 @@ examples/ansible/inventory.local.yml
 examples/ansible/inventory.local.yaml
 *.retry
 .venv/
+services/inventories/*.local.yml
+services/inventories/*.local.yaml
+services/vars.local.yml
+services/secrets.local.yml
+__pycache__/
+*.py[cod]

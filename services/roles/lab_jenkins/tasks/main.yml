@@ -1,0 +1,22 @@
+---
+- name: Vérifier les prérequis du rôle Jenkins
+  ansible.builtin.include_tasks: validate.yml
+
+- name: Installer Jenkins et ses dépendances depuis les dépôts disponibles
+  ansible.builtin.dnf:
+    name: "{{ lab_jenkins_packages }}"
+    state: present
+    enablerepo: "{{ lab_jenkins_enablerepo if lab_jenkins_enablerepo | length > 0 else omit }}"
+    disablerepo: "{{ lab_jenkins_disablerepo if lab_jenkins_disablerepo | length > 0 else omit }}"
+
+- name: Activer et démarrer le service Jenkins
+  ansible.builtin.systemd:
+    name: jenkins
+    state: started
+    enabled: true
+  when: not ansible_check_mode
+
+- name: Préciser la limite du mode simulation
+  ansible.builtin.debug:
+    msg: Le démarrage du service n'est pas vérifié en mode --check.
+  when: ansible_check_mode

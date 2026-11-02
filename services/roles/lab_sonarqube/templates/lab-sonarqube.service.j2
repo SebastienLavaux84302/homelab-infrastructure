@@ -1,0 +1,17 @@
+[Unit]
+Description=SonarQube - laboratoire personnel
+After=network.target
+
+[Service]
+Type=simple
+User={{ lab_sonarqube_user }}
+Group={{ lab_sonarqube_group }}
+WorkingDirectory={{ lab_sonarqube_release_dir }}
+ExecStart={{ lab_sonarqube_java_path }} -Xms32m -Xmx32m -Djava.net.preferIPv4Stack=true -jar {{ lab_sonarqube_application_jar }}
+LimitNOFILE=131072
+LimitNPROC=8192
+SuccessExitStatus=143
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

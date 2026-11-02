@@ -1,0 +1,16 @@
+---
+- name: Déployer Jenkins dans le lab
+  hosts: jenkins
+  become: true
+  gather_facts: true
+  roles:
+    - role: lab_jenkins
+      tags: [jenkins]
+
+- name: Déployer SonarQube dans le lab
+  hosts: sonarqube
+  become: true
+  gather_facts: true
+  roles:
+    - role: lab_sonarqube
+      tags: [sonarqube]

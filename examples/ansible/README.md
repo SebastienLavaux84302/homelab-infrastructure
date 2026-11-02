@@ -17,4 +17,6 @@ ansible-playbook -i inventory.local.yml diagnostic.yml
 
 Le domaine `.invalid` de l'exemple est fictif : il faut le remplacer avant la seconde commande. `--syntax-check` vérifie la syntaxe du playbook sans établir la connexion ; la seconde commande se connecte à la cible. Adapter la configuration SSH sans stocker de mot de passe ou de clé privée dans le dépôt.
 
+Le YAML de cet exemple a été vérifié. Son exécution avec Ansible et sur une cible distante reste à valider.
+
 Le rapport réel dépend de la machine et de sa configuration. Ne pas publier de sortie contenant des informations propres à une infrastructure privée.
